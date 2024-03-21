@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from hebsafeharbor.common.city_utils import (
     BELOW_THRESHOLD_CITIES_LIST,
@@ -46,17 +46,18 @@ class PhiIdentifier:
         self.entity_splitter = EntitySplitterRuleExecutor()
         self.consolidator = NerConsolidator()
 
-    def __call__(self, doc: Doc) -> Doc:
+    def __call__(self, doc: Doc, allow_list: Optional[List[str]] = None,) -> Doc:
         """
         This method identifies the PHI entities
 
         :param doc: Doc object which holds the input text for PHI reduction
+        :param allow_list: List of words that the user defines as being allowed to keep
         :return: an updated Doc object that contains the the set of entities that were recognized by the different
         signals and the consolidated set of entities
         """
 
         # recognition
-        analyzer_results = self.analyzer.analyze(text=doc.text, language="he", return_decision_process=True)
+        analyzer_results = self.analyzer.analyze(text=doc.text, language="he", return_decision_process=True, allow_list=allow_list)
         doc.analyzer_results = sorted(analyzer_results, key=lambda res: res.start)
 
         # entity smoothing
